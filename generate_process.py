@@ -72,28 +72,59 @@ def process_job(folder):
         os.makedirs("static/reels", exist_ok=True)
         output_file = f"static/reels/{folder}.mp4"
         
+        w = 720
+        h = 1280
+        vf_filter = f"scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:black"
+
         if has_bg_music:
             print(f"Mixing background music: {bg_music_path} at volume {bg_music_volume}")
-            command = (
-                f'ffmpeg -y -f concat -safe 0 -i user_uploads/{folder}/input.txt '
-                f'-i user_uploads/{folder}/audio.mp3 '
-                f'-i "{bg_music_path}" '
-                f'-filter_complex "[2:a]volume={bg_music_volume}[bg];[1:a][bg]amix=inputs=2:duration=first[a]" '
-                f'-map 0:v -map "[a]" '
-                f'-vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black" '
-                f'-c:v libx264 -c:a aac -shortest -r 30 -pix_fmt yuv420p "{output_file}"'
-            )
+            command = [
+                "ffmpeg", "-y",
+                "-threads", "1",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", f"user_uploads/{folder}/input.txt",
+                "-i", f"user_uploads/{folder}/audio.mp3",
+                "-i", bg_music_path,
+                "-filter_complex", f"[2:a]volume={bg_music_volume}[bg];[1:a][bg]amix=inputs=2:duration=first[a]",
+                "-map", "0:v",
+                "-map", "[a]",
+                "-vf", vf_filter,
+                "-c:v", "libx264",
+                "-preset", "ultrafast",
+                "-tune", "stillimage",
+                "-rc-lookahead", "0",
+                "-g", "15",
+                "-r", "15",
+                "-c:a", "aac",
+                "-shortest",
+                "-pix_fmt", "yuv420p",
+                output_file
+            ]
         else:
             print("No background music. Rendering video with voiceover only...")
-            command = (
-                f'ffmpeg -y -f concat -safe 0 -i user_uploads/{folder}/input.txt '
-                f'-i user_uploads/{folder}/audio.mp3 '
-                f'-vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black" '
-                f'-c:v libx264 -c:a aac -shortest -r 30 -pix_fmt yuv420p "{output_file}"'
-            )
+            command = [
+                "ffmpeg", "-y",
+                "-threads", "1",
+                "-f", "concat",
+                "-safe", "0",
+                "-i", f"user_uploads/{folder}/input.txt",
+                "-i", f"user_uploads/{folder}/audio.mp3",
+                "-vf", vf_filter,
+                "-c:v", "libx264",
+                "-preset", "ultrafast",
+                "-tune", "stillimage",
+                "-rc-lookahead", "0",
+                "-g", "15",
+                "-r", "15",
+                "-c:a", "aac",
+                "-shortest",
+                "-pix_fmt", "yuv420p",
+                output_file
+            ]
             
-        print(f"Running command: {command}")
-        subprocess.run(command, shell=True, check=True)
+        print(f"Running command: {' '.join(command)}")
+        subprocess.run(command, check=True)
         print(f"SUCCESS: Reel created for {folder}")
         
         # Update status to completed
