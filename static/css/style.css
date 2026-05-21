@@ -59,6 +59,19 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--accent-cyan);
 }
 
+/* Muted & Form Helper Text Legibility Override */
+.text-muted,
+.form-text,
+.text-body-secondary {
+    color: var(--text-muted) !important;
+}
+
+.text-muted i,
+.form-text i {
+    color: var(--accent-cyan) !important;
+    text-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+}
+
 .brand-text {
     font-family: var(--font-heading);
     font-weight: 800;
