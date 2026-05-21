@@ -1,0 +1,25 @@
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local configuration and keys
+.env
+.env.local
+
+# Project specific caches and media
+user_uploads/
+static/reels/
+jobs.json
+done.txt
+
+# Local heavy binaries
+ffmpeg-master-latest-win64-gpl-shared/
+
+# Editors and system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

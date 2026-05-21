@@ -1,0 +1,128 @@
+.gallery-section {
+    padding: 6rem 0;
+    min-height: 85vh;
+}
+
+.gallery-title-wrapper {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+    padding: 1rem;
+}
+
+.reel-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.reel-video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9/16;
+    background: #000000;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.reel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.reel-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.reel-prompt {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 4rem;
+}
+
+.reel-metadata {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reel-metadata i {
+    color: var(--accent-cyan);
+}
+
+.reel-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-action-download {
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.btn-action-download:hover {
+    background: var(--accent-cyan);
+    color: #060211;
+    box-shadow: var(--shadow-neon-cyan);
+}
+
+.btn-action-delete {
+    background: rgba(244, 63, 94, 0.1);
+    color: var(--accent-pink);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    cursor: pointer;
+}
+
+.btn-action-delete:hover {
+    background: var(--accent-pink);
+    color: #ffffff;
+    box-shadow: var(--shadow-neon-pink);
+}
+
+@media (max-width: 576px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+        margin: 0 auto;
+    }
+}

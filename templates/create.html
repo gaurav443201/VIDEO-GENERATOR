@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Create Reel - VidSnapAI{% endblock %}
+
+{% block extra_css %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container create-section">
+    <div class="row">
+        <!-- Input Form Section -->
+        <div class="col-lg-7 mb-5 mb-lg-0">
+            <div class="glass-card p-4 p-md-5">
+                <h2 class="mb-4" style="font-family: var(--font-heading); font-weight: 800;">
+                    <i class="fa-solid fa-circle-plus text-accent me-2"></i>Create New Reel
+                </h2>
+                
+                <form action="/create" enctype="multipart/form-data" method="POST" id="createReelForm">
+                    <input name="uuid" type="hidden" value="{{ myid }}">
+                    
+                    <!-- Text Prompts / Descriptions -->
+                    <div class="mb-4">
+                        <label for="textInput" class="form-label-cyber">
+                            <i class="fa-solid fa-message"></i>Voiceover Script (Text-to-Speech)
+                        </label>
+                        <textarea class="form-control input-cyber" id="textInput" name="text" rows="4" placeholder="Type here what you want the AI voice to say in the video reel..." required></textarea>
+                    </div>
+
+                    <!-- Voice Selection -->
+                    <div class="mb-4">
+                        <label for="voiceSelect" class="form-label-cyber">
+                            <i class="fa-solid fa-microphone"></i>Select ElevenLabs Voice
+                        </label>
+                        <select class="form-select input-cyber" id="voiceSelect" name="voice">
+                            <option value="pNInz6obpgDQGcFmaJgB">Adam (Male - Narrative Deep)</option>
+                            <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female - Conversational)</option>
+                            <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female - Friendly / Professional)</option>
+                            <option value="AZnzlk1XhkjUfBnSLqCO">Dom (Male - Energetic)</option>
+                            <option value="ErXwobaYiN019PkySvjV">Antoni (Male - Deep / Direct)</option>
+                        </select>
+                        <div class="form-text text-muted mt-2" style="font-size: 0.8rem;">
+                            <i class="fa-solid fa-circle-info me-1"></i>Includes robust gTTS fallback if API quotas run out.
+                        </div>
+                    </div>
+
+                    <!-- Background Music Selection & Volume Slider -->
+                    <div class="mb-4">
+                        <label for="bgMusicSelect" class="form-label-cyber">
+                            <i class="fa-solid fa-music"></i>Add Background Soundtrack
+                        </label>
+                        <div class="sound-selector-container">
+                            <div class="row align-items-center g-3">
+                                <div class="col-sm-8">
+                                    <select class="form-select input-cyber w-100" id="bgMusicSelect" name="bg_music" onchange="handleSongChange(this.value)">
+                                        <option value="none">No Background Music (Voiceover Only)</option>
+                                        <option value="1">Cyberbeat 1 (Upbeat Synthwave)</option>
+                                        <option value="2">Cyberbeat 2 (Ambient Lofi)</option>
+                                        <option value="3">Cyberbeat 3 (Heavy Trap Beat)</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4 text-sm-end">
+                                    <button type="button" class="btn btn-preview w-100" id="previewBtn" onclick="togglePlayPreview()" disabled>
+                                        <i class="fa-solid fa-circle-play me-1"></i>Preview
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="volume-slider-group" id="volumeGroup" style="opacity: 0.5; pointer-events: none; transition: opacity 0.3s ease;">
+                                <span class="small" style="color: var(--text-muted); min-width: 60px;">Volume:</span>
+                                <input type="range" class="volume-slider" name="bg_music_volume" min="0" max="0.8" step="0.05" value="0.15" oninput="updateVolumeLabel(this.value)">
+                                <span class="small fw-semibold text-accent" id="volumeVal" style="min-width: 35px;">15%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Slides Upload Manager -->
+                    <div class="mb-5">
+                        <label class="form-label-cyber">
+                            <i class="fa-regular fa-images"></i>Upload Slideshow Images
+                        </label>
+                        <div id="fileInputs">
+                            <div class="file-input-group">
+                                <input name="file1" type="file" class="form-control input-cyber file-input" accept="image/png, image/jpeg, image/jpg" required />
+                                <button type="button" class="remove-file-btn" onclick="removeFileInput(this)" disabled>
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-file-btn mt-2" onclick="addFileInput()">
+                            <i class="fa-solid fa-plus me-1"></i>Add Slide Image
+                        </button>
+                        <div class="form-text text-muted mt-2" style="font-size: 0.8rem;">
+                            Each slide will auto-scale to 9:16 reels dimensions (padded with blurred black background).
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-cyber w-100 justify-content-center py-3" id="submitBtn">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>Generate Cosmic Reel
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Real-Time Queue & Progress Section -->
+        <div class="col-lg-5">
+            <div class="glass-card p-4 p-md-5 jobs-dashboard h-100 mt-lg-0 mt-4">
+                <div class="jobs-title">
+                    <i class="fa-solid fa-clock-rotate-left"></i>Active Render Dashboard
+                </div>
+                <p class="text-muted small mb-4">View and track your rendering pipelines as they compile on the server worker thread.</p>
+                <div id="jobsListContainer">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-accent mb-3" role="status"></div>
+                        <div class="small text-muted">Syncing render queue...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let fileCounter = 2;
+    let previewAudio = null;
+    let isPlayingPreview = false;
+
+    function addFileInput() {
+        const fileInputs = document.getElementById('fileInputs');
+        const newGroup = document.createElement('div');
+        newGroup.className = 'file-input-group';
+        newGroup.innerHTML = `
+            <input name="file${fileCounter}" type="file" class="form-control input-cyber file-input" accept="image/png, image/jpeg, image/jpg" required />
+            <button type="button" class="remove-file-btn" onclick="removeFileInput(this)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        fileInputs.appendChild(newGroup);
+        fileCounter++;
+    }
+
+    function removeFileInput(button) {
+        const fileInputGroup = button.closest('.file-input-group');
+        fileInputGroup.remove();
+    }
+
+    function handleSongChange(val) {
+        const previewBtn = document.getElementById('previewBtn');
+        const volumeGroup = document.getElementById('volumeGroup');
+        
+        // Stop audio if running
+        stopPreviewAudio();
+        
+        if (val === 'none') {
+            previewBtn.disabled = true;
+            volumeGroup.style.opacity = '0.5';
+            volumeGroup.style.pointerEvents = 'none';
+        } else {
+            previewBtn.disabled = false;
+            volumeGroup.style.opacity = '1';
+            volumeGroup.style.pointerEvents = 'auto';
+        }
+    }
+
+    function togglePlayPreview() {
+        const songSelect = document.getElementById('bgMusicSelect');
+        const previewBtn = document.getElementById('previewBtn');
+        
+        if (isPlayingPreview) {
+            stopPreviewAudio();
+        } else {
+            const songVal = songSelect.value;
+            if (songVal === 'none') return;
+            
+            previewAudio = new Audio(`/static/songs/${songVal}.mp3`);
+            previewAudio.volume = 0.35;
+            previewAudio.loop = true;
+            previewAudio.play().then(() => {
+                isPlayingPreview = true;
+                previewBtn.innerHTML = '<i class="fa-solid fa-circle-pause me-1"></i>Pause';
+                previewBtn.classList.add('btn-active');
+            }).catch(e => console.error("Audio preview failed:", e));
+        }
+    }
+
+    function stopPreviewAudio() {
+        const previewBtn = document.getElementById('previewBtn');
+        if (previewAudio) {
+            previewAudio.pause();
+            previewAudio = null;
+        }
+        isPlayingPreview = false;
+        previewBtn.innerHTML = '<i class="fa-solid fa-circle-play me-1"></i>Preview';
+        previewBtn.classList.remove('btn-active');
+    }
+
+    function updateVolumeLabel(val) {
+        const pct = Math.round(parseFloat(val) * 100);
+        document.getElementById('volumeVal').textContent = `${pct}%`;
+    }
+
+    // Polling System
+    const VOICES_MAP = {
+        'pNInz6obpgDQGcFmaJgB': 'Adam (Male)',
+        'EXAVITQu4vr4xnSDxMaL': 'Bella (Female)',
+        '21m00Tcm4TlvDq8ikWAM': 'Rachel (Female)',
+        'AZnzlk1XhkjUfBnSLqCO': 'Dom (Male)',
+        'ErXwobaYiN019PkySvjV': 'Antoni (Male)'
+    };
+
+    function getVoiceName(vid) {
+        return VOICES_MAP[vid] || vid || 'Default';
+    }
+
+    async function pollJobs() {
+        try {
+            const response = await fetch('/jobs');
+            const data = await response.json();
+            const jobs = data.jobs || [];
+            
+            // Sort by creation date desc
+            jobs.sort((a, b) => b.created_at - a.created_at);
+            
+            const jobsListContainer = document.getElementById('jobsListContainer');
+            
+            if (jobs.length === 0) {
+                jobsListContainer.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fa-regular fa-folder-open mb-3 d-block" style="font-size: 2.5rem;"></i>
+                        No rendering tasks found.<br>Create a reel to queue jobs.
+                    </div>`;
+                return;
+            }
+            
+            jobsListContainer.innerHTML = jobs.map(job => {
+                let badgeClass = 'badge-pending';
+                let statusText = 'Pending';
+                let icon = '<i class="fa-regular fa-clock me-1"></i>';
+                
+                if (job.status === 'processing') {
+                    badgeClass = 'badge-processing';
+                    statusText = 'Processing';
+                    icon = '<i class="fa-solid fa-spinner fa-spin me-1"></i>';
+                } else if (job.status === 'completed') {
+                    badgeClass = 'badge-completed';
+                    statusText = 'Completed';
+                    icon = '<i class="fa-solid fa-check me-1"></i>';
+                } else if (job.status === 'failed') {
+                    badgeClass = 'badge-failed';
+                    statusText = 'Failed';
+                    icon = '<i class="fa-solid fa-triangle-exclamation me-1"></i>';
+                }
+                
+                const timeString = new Date(job.created_at * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const voiceName = getVoiceName(job.voice);
+                const errorsDiv = job.error ? `<div class="text-danger mt-2 small" style="font-size: 0.78rem;"><i class="fa-solid fa-circle-xmark me-1"></i>${job.error}</div>` : '';
+                
+                let viewReelButton = '';
+                if (job.status === 'completed') {
+                    viewReelButton = `<a href="/gallery" class="btn btn-preview py-1 px-3 mt-2 mt-sm-0"><i class="fa-solid fa-film me-1"></i>View Reel</a>`;
+                }
+
+                return `
+                    <div class="job-item">
+                        <div class="job-meta">
+                            <div class="job-text" title="${job.text}">${job.text || 'Untitled'}</div>
+                            <div class="job-details mt-1">
+                                <span><i class="fa-regular fa-image me-1"></i>${job.files_count || 0} Slides</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="fa-solid fa-music me-1"></i>Music: ${job.bg_music === 'none' ? 'None' : 'Beat ' + job.bg_music}</span>
+                                <span class="mx-2">•</span>
+                                <span><i class="fa-regular fa-clock me-1"></i>${timeString}</span>
+                            </div>
+                            ${errorsDiv}
+                        </div>
+                        <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 mt-2 mt-md-0">
+                            ${viewReelButton}
+                            <span class="job-status-badge ${badgeClass}">
+                                ${icon}${statusText}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error("Failed to sync queue:", e);
+        }
+    }
+
+    // Start polling immediately and on interval
+    pollJobs();
+    setInterval(pollJobs, 2000);
+</script>
+{% endblock %}

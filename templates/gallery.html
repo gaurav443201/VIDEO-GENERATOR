@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Cosmic Video Gallery - VidSnapAI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container gallery-section">
+    <div class="gallery-title-wrapper">
+        <h1 class="display-5 mb-3" style="font-family: var(--font-heading); font-weight: 800;">
+            <i class="fa-solid fa-photo-film text-accent me-2"></i>Cosmic Video Gallery
+        </h1>
+        <p class="text-muted mx-auto" style="max-width: 600px;">Browse and play back vertical 9:16 video reels stitched with synthetic AI voiceovers and custom backing audio overlays.</p>
+    </div>
+
+    {% if items %}
+        <div class="gallery-grid">
+            {% for item in items %}
+                <div class="glass-card reel-card">
+                    <!-- Video Container -->
+                    <div class="reel-video-wrapper">
+                        <video class="reel-video" src="{{ url_for('static', filename='reels/' ~ item.filename) }}" controls loop></video>
+                    </div>
+
+                    <!-- Details Card -->
+                    <div class="reel-content">
+                        <p class="reel-prompt" title="{{ item.text }}">{{ item.text }}</p>
+                        
+                        <div class="reel-metadata">
+                            <i class="fa-solid fa-music"></i>
+                            <span>Soundtrack: {% if item.bg_music == 'none' %}None (Voice Only){% else %}Beat {{ item.bg_music }}{% endif %}</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="reel-actions">
+                            <a href="{{ url_for('static', filename='reels/' ~ item.filename) }}" download class="btn-action btn-action-download">
+                                <i class="fa-solid fa-download"></i>Download
+                            </a>
+                            
+                            <!-- Delete Request Form -->
+                            <form action="/delete/{{ item.id }}" method="POST" style="flex: 1; display: flex; margin: 0;">
+                                <button type="submit" class="btn-action btn-action-delete w-100" onclick="return confirm('Are you sure you want to permanently delete this reel?');">
+                                    <i class="fa-solid fa-trash-can"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 glass-card my-5 mx-auto p-5" style="max-width: 600px;">
+            <i class="fa-solid fa-clapperboard text-muted mb-3 d-block" style="font-size: 3.5rem;"></i>
+            <h3 class="mb-2">Your Gallery is Empty</h3>
+            <p class="text-muted mb-4">No AI generated reels have been created yet. Launch the creator panel to generate your first clip.</p>
+            <a href="/create" class="btn-cyber"><i class="fa-solid fa-plus me-1"></i>Create First Reel</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

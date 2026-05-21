@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: vidsnap_web
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+    volumes:
+      - ./user_uploads:/app/user_uploads
+      - ./static/reels:/app/static/reels
+      - ./jobs.json:/app/jobs.json
+      - ./done.txt:/app/done.txt
+    depends_on:
+      - worker
+
+  worker:
+    build: .
+    container_name: vidsnap_worker
+    restart: always
+    command: python generate_process.py
+    environment:
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+    volumes:
+      - ./user_uploads:/app/user_uploads
+      - ./static/reels:/app/static/reels
+      - ./jobs.json:/app/jobs.json
+      - ./done.txt:/app/done.txt
