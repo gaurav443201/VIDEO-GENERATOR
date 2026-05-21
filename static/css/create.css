@@ -38,6 +38,122 @@
     color: var(--text-muted);
 }
 
+/* Custom styled file inputs and buttons */
+.input-cyber[type="file"] {
+    padding: 0.5rem 0.8rem;
+}
+
+.input-cyber::file-selector-button {
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    margin-right: 1rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.input-cyber:hover::file-selector-button {
+    background: var(--accent-cyan);
+    color: #060211;
+    box-shadow: var(--shadow-neon-cyan);
+}
+
+.input-cyber::-webkit-file-upload-button {
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    margin-right: 1rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.input-cyber:hover::-webkit-file-upload-button {
+    background: var(--accent-cyan);
+    color: #060211;
+    box-shadow: var(--shadow-neon-cyan);
+}
+
+/* Custom Cyberpunk Dropdown styling */
+.custom-cyber-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.custom-cyber-dropdown .dropdown-toggle {
+    text-align: left;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    color: #ffffff !important;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.custom-cyber-dropdown .dropdown-toggle:focus,
+.custom-cyber-dropdown .dropdown-toggle.show {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-cyan);
+    box-shadow: var(--shadow-neon-cyan);
+    outline: none;
+}
+
+.custom-cyber-dropdown .dropdown-toggle::after {
+    color: var(--accent-cyan);
+    margin-left: 10px;
+    border-top: 0.35em solid;
+    border-right: 0.35em solid transparent;
+    border-bottom: 0;
+    border-left: 0.35em solid transparent;
+}
+
+.dropdown-menu-cyber {
+    background: rgba(18, 10, 36, 0.96) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glow) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 242, 254, 0.2), var(--shadow-glass) !important;
+    padding: 0.5rem !important;
+    margin-top: 0.5rem !important;
+    z-index: 1050;
+}
+
+.dropdown-menu-cyber .dropdown-item {
+    font-family: var(--font-body);
+    font-weight: 500;
+    color: var(--text-main) !important;
+    padding: 0.7rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.dropdown-menu-cyber .dropdown-item:hover,
+.dropdown-menu-cyber .dropdown-item:focus {
+    background: rgba(0, 242, 254, 0.1) !important;
+    color: var(--accent-cyan) !important;
+    text-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+}
+
+.dropdown-menu-cyber .dropdown-item.active,
+.dropdown-menu-cyber .dropdown-item:active {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4) !important;
+}
+
 /* File Upload Row styling */
 .file-input-group {
     display: flex;
@@ -137,6 +253,21 @@
     transform: scale(1.2);
 }
 
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    cursor: pointer;
+    box-shadow: var(--shadow-neon-cyan);
+    transition: transform 0.1s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
 .btn-preview {
     background: rgba(0, 242, 254, 0.1);
     color: var(--accent-cyan);
@@ -187,6 +318,7 @@
     border: 1px solid var(--border-glass);
     border-radius: 12px;
     transition: all 0.3s ease;
+    gap: 15px;
 }
 
 .job-item:hover {
@@ -198,12 +330,14 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+    flex: 1;
 }
 
 .job-text {
     font-size: 0.95rem;
     color: #ffffff;
-    max-width: 400px;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -212,6 +346,13 @@
 .job-details {
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+.job-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
 .job-status-badge {
@@ -225,6 +366,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
 }
 
 .badge-pending {
@@ -262,8 +404,13 @@
 @media (max-width: 768px) {
     .job-item {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .job-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 4px;
     }
     .job-status-badge {
         align-self: flex-start;

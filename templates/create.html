@@ -29,16 +29,22 @@
 
                     <!-- Voice Selection -->
                     <div class="mb-4">
-                        <label for="voiceSelect" class="form-label-cyber">
+                        <label class="form-label-cyber">
                             <i class="fa-solid fa-microphone"></i>Select ElevenLabs Voice
                         </label>
-                        <select class="form-select input-cyber" id="voiceSelect" name="voice">
-                            <option value="pNInz6obpgDQGcFmaJgB">Adam (Male - Narrative Deep)</option>
-                            <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female - Conversational)</option>
-                            <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female - Friendly / Professional)</option>
-                            <option value="AZnzlk1XhkjUfBnSLqCO">Dom (Male - Energetic)</option>
-                            <option value="ErXwobaYiN019PkySvjV">Antoni (Male - Deep / Direct)</option>
-                        </select>
+                        <div class="dropdown custom-cyber-dropdown">
+                            <button class="btn dropdown-toggle input-cyber w-100 text-start d-flex justify-content-between align-items-center" type="button" id="voiceDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span><i class="fa-solid fa-user-astronaut me-2 text-accent"></i>Adam (Male - Narrative Deep)</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-cyber w-100" aria-labelledby="voiceDropdownBtn" id="voiceDropdownMenu">
+                                <li><a class="dropdown-item active" href="#" data-value="pNInz6obpgDQGcFmaJgB"><i class="fa-solid fa-user-astronaut me-2 text-accent"></i>Adam (Male - Narrative Deep)</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="EXAVITQu4vr4xnSDxMaL"><i class="fa-solid fa-user-astronaut me-2 text-accent"></i>Bella (Female - Conversational)</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="21m00Tcm4TlvDq8ikWAM"><i class="fa-solid fa-user-astronaut me-2 text-accent"></i>Rachel (Female - Friendly / Professional)</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="AZnzlk1XhkjUfBnSLqCO"><i class="fa-solid fa-user-astronaut me-2 text-accent"></i>Dom (Male - Energetic)</a></li>
+                                <li><a class="dropdown-item" href="#" data-value="ErXwobaYiN019PkySvjV"><i class="fa-solid fa-user-astronaut me-2 text-accent"></i>Antoni (Male - Deep / Direct)</a></li>
+                            </ul>
+                            <input type="hidden" name="voice" id="voiceSelect" value="pNInz6obpgDQGcFmaJgB">
+                        </div>
                         <div class="form-text text-muted mt-2" style="font-size: 0.8rem;">
                             <i class="fa-solid fa-circle-info me-1"></i>Includes robust gTTS fallback if API quotas run out.
                         </div>
@@ -46,18 +52,24 @@
 
                     <!-- Background Music Selection & Volume Slider -->
                     <div class="mb-4">
-                        <label for="bgMusicSelect" class="form-label-cyber">
+                        <label class="form-label-cyber">
                             <i class="fa-solid fa-music"></i>Add Background Soundtrack
                         </label>
                         <div class="sound-selector-container">
                             <div class="row align-items-center g-3">
                                 <div class="col-sm-8">
-                                    <select class="form-select input-cyber w-100" id="bgMusicSelect" name="bg_music" onchange="handleSongChange(this.value)">
-                                        <option value="none">No Background Music (Voiceover Only)</option>
-                                        <option value="1">Cyberbeat 1 (Upbeat Synthwave)</option>
-                                        <option value="2">Cyberbeat 2 (Ambient Lofi)</option>
-                                        <option value="3">Cyberbeat 3 (Heavy Trap Beat)</option>
-                                    </select>
+                                    <div class="dropdown custom-cyber-dropdown">
+                                        <button class="btn dropdown-toggle input-cyber w-100 text-start d-flex justify-content-between align-items-center" type="button" id="bgMusicDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span><i class="fa-solid fa-volume-xmark me-2 text-accent"></i>No Background Music (Voiceover Only)</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-cyber w-100" aria-labelledby="bgMusicDropdownBtn" id="bgMusicDropdownMenu">
+                                            <li><a class="dropdown-item active" href="#" data-value="none"><i class="fa-solid fa-volume-xmark me-2 text-accent"></i>No Background Music (Voiceover Only)</a></li>
+                                            <li><a class="dropdown-item" href="#" data-value="1"><i class="fa-solid fa-bolt me-2 text-accent"></i>Cyberbeat 1 (Upbeat Synthwave)</a></li>
+                                            <li><a class="dropdown-item" href="#" data-value="2"><i class="fa-solid fa-cloud-moon me-2 text-accent"></i>Cyberbeat 2 (Ambient Lofi)</a></li>
+                                            <li><a class="dropdown-item" href="#" data-value="3"><i class="fa-solid fa-fire me-2 text-accent"></i>Cyberbeat 3 (Heavy Trap Beat)</a></li>
+                                        </ul>
+                                        <input type="hidden" name="bg_music" id="bgMusicSelect" value="none">
+                                    </div>
                                 </div>
                                 <div class="col-sm-4 text-sm-end">
                                     <button type="button" class="btn btn-preview w-100" id="previewBtn" onclick="togglePlayPreview()" disabled>
@@ -259,7 +271,7 @@
                 
                 let viewReelButton = '';
                 if (job.status === 'completed') {
-                    viewReelButton = `<a href="/gallery" class="btn btn-preview py-1 px-3 mt-2 mt-sm-0"><i class="fa-solid fa-film me-1"></i>View Reel</a>`;
+                    viewReelButton = `<a href="/gallery" class="btn btn-preview py-1 px-3"><i class="fa-solid fa-film me-1"></i>View Reel</a>`;
                 }
 
                 return `
@@ -275,7 +287,7 @@
                             </div>
                             ${errorsDiv}
                         </div>
-                        <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 mt-2 mt-md-0">
+                        <div class="job-actions mt-2 mt-sm-0">
                             ${viewReelButton}
                             <span class="job-status-badge ${badgeClass}">
                                 ${icon}${statusText}
@@ -288,6 +300,36 @@
             console.error("Failed to sync queue:", e);
         }
     }
+
+    // Custom Dropdown Handling
+    document.querySelectorAll('.custom-cyber-dropdown').forEach(dropdown => {
+        const btn = dropdown.querySelector('.dropdown-toggle');
+        const input = dropdown.querySelector('input[type="hidden"]');
+        const items = dropdown.querySelectorAll('.dropdown-item');
+
+        items.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const val = this.getAttribute('data-value');
+                const htmlContent = this.innerHTML;
+
+                // Update active state
+                items.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update button content
+                btn.innerHTML = `<span>${htmlContent}</span>`;
+                
+                // Update hidden input value
+                input.value = val;
+
+                // Trigger change events
+                if (input.id === 'bgMusicSelect') {
+                    handleSongChange(val);
+                }
+            });
+        });
+    });
 
     // Start polling immediately and on interval
     pollJobs();
