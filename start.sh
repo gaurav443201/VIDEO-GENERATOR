@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Start the background audio/video compilation daemon
-echo "Starting VidSnapAI video queue daemon..."
-python generate_process.py &
-
-# Start the Gunicorn web server to serve traffic
+# Start the Gunicorn web server (contains the integrated worker thread)
 echo "Starting Flask web server on port $PORT..."
-gunicorn --bind 0.0.0.0:$PORT --workers 2 main:app
+gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 main:app

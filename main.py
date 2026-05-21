@@ -182,5 +182,48 @@ def delete_reel(job_id):
     return redirect(url_for("gallery"))
 
 
+# Start background thread only in the main worker process (prevents duplicate threads in debug mode)
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
+    import threading
+    from generate_process import process_job
+    
+    def queue_worker_loop():
+        # Self-healing: Reset any stuck processing jobs back to pending on boot
+        try:
+            if os.path.exists('jobs.json'):
+                with open('jobs.json', 'r') as f:
+                    jobs = json.load(f)
+                updated = False
+                for j in jobs:
+                    if j.get("status") == "processing":
+                        j["status"] = "pending"
+                        updated = True
+                if updated:
+                    with open('jobs.json', 'w') as f:
+                        json.dump(jobs, f, indent=4)
+        except Exception as e:
+            print(f"Error resetting stuck jobs: {e}")
+
+        print("VidSnapAI Video Processing Thread Started")
+        while True:
+            try:
+                if os.path.exists('jobs.json'):
+                    with open('jobs.json', 'r') as f:
+                        jobs = json.load(f)
+                else:
+                    jobs = []
+                
+                pending_jobs = [j for j in jobs if j.get("status") == "pending"]
+                for job in pending_jobs:
+                    process_job(job["id"])
+                
+                time.sleep(2)
+            except Exception as e:
+                print(f"Daemon Thread Error: {e}")
+                time.sleep(5)
+
+    threading.Thread(target=queue_worker_loop, daemon=True).start()
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True, port=int(os.environ.get("PORT", 5000)))
