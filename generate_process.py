@@ -5,6 +5,31 @@ import subprocess
 from text_to_audio import text_to_speech_file
 
 
+def get_audio_duration(audio_path, text=""):
+    try:
+        command = [
+            "ffprobe", "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            audio_path
+        ]
+        result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=5)
+        duration_str = result.stdout.strip()
+        if duration_str:
+            val = float(duration_str)
+            if val > 0:
+                print(f"Detected audio duration: {val:.3f}s via ffprobe")
+                return val
+    except Exception as e:
+        print(f"Warning: Could not get audio duration via ffprobe: {e}")
+    
+    # Fallback to word-count estimation
+    words = len(text.split()) if text else 1
+    estimated = max(3.0, (words / 2.2) + 1.5)
+    print(f"Using estimated audio duration: {estimated:.2f}s (words: {words})")
+    return estimated
+
+
 def update_job_status(job_id, status, error=None):
     try:
         if not os.path.exists("jobs.json"):
@@ -35,6 +60,7 @@ def process_job(folder):
     bg_music = "none"
     bg_music_volume = 0.15
     text = ""
+    files = []
     
     if os.path.exists(config_path):
         try:
@@ -44,6 +70,7 @@ def process_job(folder):
                 bg_music = config.get("bg_music", bg_music)
                 bg_music_volume = config.get("bg_music_volume", bg_music_volume)
                 text = config.get("text", "")
+                files = config.get("files", [])
         except Exception as e:
             print(f"Error reading job config: {e}")
             
@@ -62,6 +89,36 @@ def process_job(folder):
         print(f"Generating audio with voice '{voice_id}'...")
         text_to_speech_file(text, folder, voice_id)
         
+        # Calculate dynamic slideshow durations to match audio length
+        audio_path = f"user_uploads/{folder}/audio.mp3"
+        if not os.path.exists(audio_path):
+            raise FileNotFoundError(f"Audio file not found at {audio_path}")
+            
+        audio_duration = get_audio_duration(audio_path, text)
+        
+        if not files:
+            # Fallback scan
+            job_dir = f"user_uploads/{folder}"
+            if os.path.exists(job_dir):
+                for filename in sorted(os.listdir(job_dir)):
+                    if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+                        files.append(filename)
+                        
+        if files:
+            num_files = len(files)
+            duration_per_image = max(0.1, audio_duration / num_files)
+            print(f"Rewriting input.txt for {folder}: {num_files} files, duration per image: {duration_per_image:.3f}s (audio duration: {audio_duration:.3f}s)")
+            
+            input_txt_path = f"user_uploads/{folder}/input.txt"
+            with open(input_txt_path, "w", encoding="utf-8") as f:
+                for fl in files:
+                    f.write(f"file '{fl}'\n")
+                    f.write(f"duration {duration_per_image}\n")
+                # Repeat the last file once more without duration to hold the frame
+                f.write(f"file '{files[-1]}'\n")
+        else:
+            print(f"Warning: No image files found for job {folder}!")
+            
         # Step 2: Stitch Video using FFmpeg
         print(f"Stitching video with background music '{bg_music}'...")
         
